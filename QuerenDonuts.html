@@ -1,0 +1,356 @@
+<html lang="pt-BR">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Queren Donuts
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+  <style>
+   body {
+      font-family: "Inter", sans-serif;
+      transition: background-color 0.3s ease;
+    }
+  </style>
+  <script>
+   document.addEventListener("DOMContentLoaded", function () {
+      const categories = [
+        {
+          id: "especiais",
+          label: "Especiais",
+          icon: "fa-star",
+          discount: "🍩 Especiais – R$ 3,00",
+          discountColor: "text-red-500",
+          items: [
+            {
+              name: "Ninho",
+              description: "",
+              price: "R$ 3,00",
+              img: "https://placehold.co/120x120/png?text=Ninho",
+              alt: "Donut sabor Ninho",
+            },
+            {
+              name: "KitKat",
+              description: "(branco ou preto)",
+              price: "R$ 3,00",
+              img: "https://placehold.co/120x120/png?text=KitKat",
+              alt: "Donut sabor KitKat branco ou preto",
+            },
+            {
+              name: "Paçoca",
+              description: "",
+              price: "R$ 3,00",
+              img: "https://placehold.co/120x120/png?text=Paçoca",
+              alt: "Donut sabor Paçoca",
+            },
+            {
+              name: "Bis",
+              description: "(branco ou preto)",
+              price: "R$ 3,00",
+              img: "https://placehold.co/120x120/png?text=Bis",
+              alt: "Donut sabor Bis branco ou preto",
+            },
+          ],
+        },
+        {
+          id: "tradicionais",
+          label: "Tradicionais",
+          icon: "fa-donut",
+          discount: "🍩 Tradicionais – R$ 2,50",
+          discountColor: "text-yellow-500",
+          items: [
+            {
+              name: "Chocolate Blend",
+              description: "Chocolate Branco (cores: Vermelho, Rosa, Azul, Amarelo e Lilás)",
+              price: "R$ 2,50",
+              img: "https://placehold.co/120x120/png?text=Chocolate+Blend",
+              alt: "Donut Chocolate Blend com chocolate branco colorido em vermelho, rosa, azul, amarelo e lilás",
+            },
+          ],
+        },
+        {
+          id: "recheados",
+          label: "Recheados",
+          icon: "fa-box-open",
+          discount: "🍩 Recheados – R$ 3,50",
+          discountColor: "text-purple-600",
+          items: [
+            {
+              name: "Doce de leite",
+              description: "",
+              price: "R$ 3,50",
+              img: "https://placehold.co/120x120/png?text=Doce+de+leite",
+              alt: "Donut recheado com doce de leite",
+            },
+            {
+              name: "Nutella",
+              description: "(+ R$ 0,50)",
+              price: "R$ 4,00",
+              img: "https://placehold.co/120x120/png?text=Nutella",
+              alt: "Donut recheado com Nutella",
+            },
+          ],
+        },
+        {
+          id: "caixas",
+          label: "Caixas",
+          icon: "fa-box",
+          discount: "🍩 Caixas (Monte sua caixa) – A partir de R$ 15,00",
+          discountColor: "text-green-600",
+          items: [
+            {
+              name: "6 unidades",
+              description: "Valor depende dos donuts escolhidos",
+              price: "A partir de R$ 15,00",
+              img: "https://placehold.co/120x120/png?text=Caixa+6+unidades",
+              alt: "Caixa com 6 unidades de donuts variados",
+            },
+          ],
+        },
+        {
+          id: "centos",
+          label: "Centos",
+          icon: "fa-layer-group",
+          discount: "🍩 Centos",
+          discountColor: "text-pink-500",
+          items: [
+            {
+              name: "Tradicional (100 un.)",
+              description: "Até 4 cores",
+              price: "R$ 200,00",
+              img: "https://placehold.co/120x120/png?text=Tradicional+100",
+              alt: "100 unidades de donuts tradicionais com até 4 cores",
+            },
+            {
+              name: "Tradicional (50 un.)",
+              description: "Até 3 cores",
+              price: "R$ 100,00",
+              img: "https://placehold.co/120x120/png?text=Tradicional+50",
+              alt: "50 unidades de donuts tradicionais com até 3 cores",
+            },
+            {
+              name: "Recheado (100 un.)",
+              description: "Até 4 cores",
+              price: "R$ 300,00",
+              img: "https://placehold.co/120x120/png?text=Recheado+100",
+              alt: "100 unidades de donuts recheados com até 4 cores",
+            },
+            {
+              name: "Recheado (50 un.)",
+              description: "Até 3 cores",
+              price: "R$ 150,00",
+              img: "https://placehold.co/120x120/png?text=Recheado+50",
+              alt: "50 unidades de donuts recheados com até 3 cores",
+            },
+            {
+              name: "Nutella",
+              description: "+ R$ 0,50 por unidade",
+              price: "",
+              img: "https://placehold.co/120x120/png?text=Nutella+Extra",
+              alt: "Adicional Nutella por unidade",
+            },
+          ],
+        },
+      ];
+
+      const categoryButtons = document.querySelectorAll("#category-buttons button");
+      const discountIcon = document.getElementById("discount-icon");
+      const discountText = document.getElementById("discount-text");
+      const productList = document.getElementById("product-list");
+      const body = document.body;
+      const colorButtons = document.querySelectorAll("div.bg-white button[data-color]");
+      const searchInput = document.getElementById("header-search");
+      const searchSendBtn = document.getElementById("search-send-btn");
+
+      function renderCategory(categoryId) {
+        const category = categories.find((c) => c.id === categoryId);
+        if (!category) return;
+
+        // Atualiza banner de desconto
+        discountText.textContent = category.discount;
+        discountIcon.className = `fas ${category.icon} ${category.discountColor} text-xl`;
+
+        // Atualiza lista de produtos
+        productList.innerHTML = "";
+        category.items.forEach((item) => {
+          const card = document.createElement("article");
+          card.className =
+            "bg-white rounded-xl shadow p-4 flex items-center space-x-4 cursor-pointer hover:shadow-lg transition-shadow";
+          card.setAttribute("role", "listitem");
+          card.tabIndex = 0;
+
+          card.addEventListener("click", () => {
+            const text = `Quero esse pedido:\n*${item.name}*\n${item.description}${item.price ? `\nPreço: ${item.price}` : ""}`;
+            const encodedText = encodeURIComponent(text);
+            window.location.href = `https://wa.me/67991415471?text=${encodedText}`;
+          });
+          card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              card.click();
+            }
+          });
+
+          const textDiv = document.createElement("div");
+          textDiv.className = "flex-1";
+
+          const name = document.createElement("h3");
+          name.className = "text-gray-900 font-semibold text-lg";
+          name.textContent = item.name;
+
+          const desc = document.createElement("p");
+          desc.className = "text-gray-600 text-sm mt-1 leading-tight";
+          desc.textContent = item.description;
+
+          const price = document.createElement("p");
+          price.className = "text-blue-600 font-semibold text-lg mt-2";
+          price.textContent = item.price;
+
+          textDiv.appendChild(name);
+          if(item.description) textDiv.appendChild(desc);
+          if(item.price) textDiv.appendChild(price);
+
+          const img = document.createElement("img");
+          img.className = "w-28 h-28 rounded-xl object-cover flex-shrink-0";
+          img.src = item.img;
+          img.alt = item.alt;
+          img.width = 120;
+          img.height = 120;
+
+          card.appendChild(textDiv);
+          card.appendChild(img);
+
+          productList.appendChild(card);
+        });
+      }
+
+      categoryButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          categoryButtons.forEach((b) => {
+            b.classList.remove(
+              "border-red-500",
+              "text-red-600",
+              "font-bold"
+            );
+            b.classList.add("text-gray-700", "font-semibold");
+            b.setAttribute("aria-selected", "false");
+          });
+          btn.classList.add("border-red-500", "text-red-600", "font-bold");
+          btn.classList.remove("text-gray-700", "font-semibold");
+          btn.setAttribute("aria-selected", "true");
+          renderCategory(btn.dataset.category);
+        });
+      });
+
+      // Inicializa com especiais selecionado
+      renderCategory("especiais");
+
+      // Função para mudar cor de fundo
+      colorButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const color = btn.getAttribute("data-color");
+          body.style.backgroundColor = color;
+
+          // Remove focus ring from all buttons
+          colorButtons.forEach((b) => b.classList.remove("ring-2", "ring-offset-1"));
+          // Add focus ring to selected button
+          btn.classList.add("ring-2", "ring-offset-1");
+        });
+      });
+
+      // Set initial focus ring on default color (blue)
+      const defaultBtn = document.querySelector("div.bg-white button[data-color='#0a7fff']");
+      if (defaultBtn) {
+        defaultBtn.classList.add("ring-2", "ring-offset-1");
+      }
+
+      // Enviar texto do campo de busca para WhatsApp
+      function sendSearchText() {
+        const text = searchInput.value.trim();
+        if (text.length === 0) return;
+        const message = `Quero esse pedido: ${text}`;
+        const encodedText = encodeURIComponent(message);
+        window.location.href = `https://wa.me/67991415471?text=${encodedText}`;
+      }
+
+      searchSendBtn.addEventListener("click", sendSearchText);
+      searchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          sendSearchText();
+        }
+      });
+    });
+  </script>
+ </head>
+ <body class="bg-[#0a7fff] min-h-screen flex flex-col transition-colors duration-300">
+  <header class="relative bg-[#0a7fff] rounded-b-[40px] px-4 pt-6 pb-4 shadow-lg">
+   <form class="relative flex items-center bg-white rounded-full px-3 py-2 text-gray-400 text-sm font-normal" onsubmit="return false;">
+    <input aria-label="Campo de busca" class="w-full outline-none text-gray-400 placeholder-gray-400 text-sm font-normal bg-transparent pr-8" placeholder="O que você quer comer hoje?" type="search" id="header-search"/>
+    <button aria-label="Enviar busca" class="absolute right-2 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600" id="search-send-btn" type="button" tabindex="0">
+     <i class="fas fa-paper-plane text-xs"></i>
+    </button>
+   </form>
+   <div class="flex items-center bg-[#0a7fff] mt-4 rounded-[30px] px-4 py-2 text-white font-semibold text-lg">
+    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-400 mr-3">
+     <i class="fas fa-utensils text-black text-lg"></i>
+    </div>
+    <span class="truncate">Queren Donuts</span>
+    <i class="fas fa-chevron-right ml-auto"></i>
+   </div>
+   <p class="text-white text-xs mt-1 ml-14 flex items-center gap-1">
+    <i class="fas fa-coins"></i>
+    Pedido mínimo: R$ 7,00
+   </p>
+  </header>
+
+  <!-- Background color selector: smaller, subtle circle buttons -->
+  <div class="bg-white mx-4 mt-4 rounded-xl shadow p-2 flex items-center space-x-2 justify-center">
+   <label class="sr-only" for="bg-color-selector">Cor do plano de fundo</label>
+   <button aria-label="Azul" class="w-6 h-6 rounded-full bg-[#0a7fff] border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#0a7fff]" type="button" data-color="#0a7fff"></button>
+   <button aria-label="Verde" class="w-6 h-6 rounded-full bg-green-500 border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500" type="button" data-color="#22c55e"></button>
+   <button aria-label="Rosa" class="w-6 h-6 rounded-full bg-pink-500 border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-pink-500" type="button" data-color="#ec4899"></button>
+   <button aria-label="Amarelo" class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-400" type="button" data-color="#facc15"></button>
+   <button aria-label="Cinza" class="w-6 h-6 rounded-full bg-gray-400 border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400" type="button" data-color="#9ca3af"></button>
+  </div>
+
+  <nav class="bg-white mt-4 mx-4 rounded-xl shadow flex justify-between text-sm font-semibold text-gray-700 px-4" id="category-buttons" role="tablist">
+   <button aria-selected="true" class="flex items-center space-x-1 border-b-2 border-red-500 text-red-600 font-bold pb-2" data-category="especiais" role="tab" type="button">
+    Especiais
+   </button>
+   <button class="pb-2 hover:text-red-600 transition font-semibold text-gray-700" data-category="tradicionais" role="tab" type="button">
+    Tradicionais
+   </button>
+   <button class="pb-2 hover:text-red-600 transition font-semibold text-gray-700" data-category="recheados" role="tab" type="button">
+    Recheados
+   </button>
+   <button class="pb-2 hover:text-red-600 transition font-semibold text-gray-700" data-category="caixas" role="tab" type="button">
+    Caixas
+   </button>
+   <button class="pb-2 hover:text-red-600 transition font-semibold text-gray-700" data-category="centos" role="tab" type="button">
+    Centos
+   </button>
+  </nav>
+  <section class="bg-white mt-4 mx-4 rounded-xl shadow flex items-center px-4 py-3 space-x-3" aria-live="polite">
+   <i class="fas fa-star text-red-500 text-xl" id="discount-icon"></i>
+   <h2 class="text-red-500 font-bold text-lg" id="discount-text">🍩 Especiais – R$ 3,00</h2>
+  </section>
+  <main class="flex-1 overflow-y-auto mt-4 mx-4 space-y-4" id="product-list" role="list">
+   <!-- Produtos serão inseridos aqui via JS -->
+  </main>
+  <footer aria-label="Navegação principal" class="bg-white border-t border-gray-200 py-3 flex justify-around text-gray-600 text-xl" role="navigation">
+   <button aria-label="Home" class="focus:outline-none focus:text-red-600" type="button">
+    <i class="fas fa-home"></i>
+   </button>
+   <button aria-label="Presentes" class="focus:outline-none focus:text-red-600" type="button">
+    <i class="fas fa-gift"></i>
+   </button>
+   <button aria-label="Carrinho" class="focus:outline-none focus:text-red-600" type="button">
+    <i class="fas fa-shopping-cart"></i>
+   </button>
+  </footer>
+ </body>
+</html>
