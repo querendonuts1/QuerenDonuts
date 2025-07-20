@@ -1,0 +1,918 @@
+<html lang="pt-BR">
+ <head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>Queren Donuts</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      transition: background-color 0.3s ease;
+    }
+    /* Header background donut images */
+    #header-bg-images {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    #header-bg-images img {
+      position: absolute;
+      opacity: 0.15;
+      user-select: none;
+      -webkit-user-drag: none;
+      border-radius: 9999px; /* circular mold */
+      border: 4px solid rgba(255 255 255 / 0.3);
+      box-sizing: border-box;
+      animation: float 6s ease-in-out infinite;
+      object-fit: cover;
+    }
+    #header-bg-images img:nth-child(2) {
+      animation-delay: 2s;
+    }
+    #header-bg-images img:nth-child(3) {
+      animation-delay: 4s;
+    }
+    #header-bg-images img:nth-child(4) {
+      animation-delay: 1s;
+    }
+    #header-bg-images img:nth-child(5) {
+      animation-delay: 3s;
+    }
+    @keyframes float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-15px);
+      }
+    }
+    /* Increase send icon size */
+    #search-send-btn i {
+      font-size: 1.25rem; /* 20px */
+    }
+    /* Custom pink container color for title and cart */
+    .header-title-cart {
+      background-color: #9e5a68; /* Tom de rosa mais suave e menos chamativo */
+    }
+    /* Splash animation container */
+    #splash-art {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    #splash-art.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+    }
+    #splash-art img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 1rem;
+      animation: spin 2s linear infinite;
+      border-radius: 9999px; /* make image round */
+      box-shadow: 0 0 15px rgba(214, 51, 108, 0.7);
+      background: white;
+    }
+    #splash-art p {
+      font-weight: 600;
+      color: #d6336c;
+      font-size: 1.25rem;
+      text-align: center;
+    }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    /* Cart panel background blue */
+    #cart-panel {
+      background-color: #0a7fff; /* Azul vibrante para o fundo do carrinho */
+    }
+    /* Override cart text colors for contrast */
+    #cart-panel header h3,
+    #cart-panel footer span,
+    #cart-panel footer button {
+      color: white;
+    }
+    #cart-panel ul li {
+      border-color: rgba(255 255 255 / 0.3);
+    }
+    #cart-panel ul li h4,
+    #cart-panel ul li p {
+      color: white;
+    }
+    #cart-panel ul li button {
+      color: white;
+    }
+    #cart-panel ul li button:hover {
+      color: #ffcccc;
+    }
+    /* Discreet background color selector */
+    .bg-color-selector button {
+      border-color: #d1d5db; /* Tailwind gray-300 */
+      box-shadow: none;
+      opacity: 0.6;
+      transition: opacity 0.3s ease, border-color 0.3s ease;
+    }
+    .bg-color-selector button:hover,
+    .bg-color-selector button:focus-visible {
+      opacity: 1;
+      border-color: #6b7280; /* Tailwind gray-500 */
+      box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.5);
+      outline: none;
+    }
+    .bg-color-selector button.ring-2 {
+      opacity: 1;
+      border-color: #2563eb; /* Tailwind blue-600 */
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.7);
+    }
+    /* Timer style */
+    #promo-timer {
+      font-weight: 700;
+      color: #dc2626; /* Tailwind red-600 */
+      font-size: 1rem;
+      margin-left: auto;
+      user-select: none;
+      min-width: 90px;
+      text-align: right;
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const categories = [
+        {
+          id: "promo",
+          label: "Promo",
+          icon: "fa-star",
+          discount: "🍩 Promo – R$ 3,00",
+          discountColor: "text-red-500",
+          items: [
+            {
+              name: "Ninho",
+              description: "",
+              price: 3.0,
+              priceText: "R$ 3,00",
+              img:
+                "https://placehold.co/120x120/png?text=Donut+Ninho&font=Inter&font-size=18&bg=FDE8F1&fg=9B4D6B",
+              alt:
+                "Donut sabor Ninho, donut redondo com cobertura branca cremosa e textura suave, foto realista de donut sobre fundo claro em moldura circular",
+              hasExtra: false,
+              extraText: "",
+              extraPrice: 0,
+            },
+            {
+              name: "KitKat",
+              description: "(branco ou preto)",
+              price: 3.0,
+              priceText: "R$ 3,00",
+              img:
+                "https://placehold.co/120x120/png?text=Donut+KitKat&font=Inter&font-size=18&bg=FDE8F1&fg=9B4D6B",
+              alt:
+                "Donut sabor KitKat branco ou preto, donut coberto com pedaços de chocolate KitKat branco ou preto, foto realista de donut com chocolate em moldura circular",
+              hasExtra: false,
+              extraText: "",
+              extraPrice: 0,
+            },
+            {
+              name: "Paçoca",
+              description: "",
+              price: 3.0,
+              priceText: "R$ 3,00",
+              img:
+                "https://placehold.co/120x120/png?text=Donut+Pa%C3%A7oca&font=Inter&font-size=18&bg=FDE8F1&fg=9B4D6B",
+              alt:
+                "Donut sabor Paçoca, donut coberto com paçoca triturada e textura crocante, foto realista de donut com cobertura marrom clara em moldura circular",
+              hasExtra: false,
+              extraText: "",
+              extraPrice: 0,
+            },
+            {
+              name: "Bis",
+              description: "(branco ou preto)",
+              price: 3.0,
+              priceText: "R$ 3,00",
+              img:
+                "https://placehold.co/120x120/png?text=Donut+Bis&font=Inter&font-size=18&bg=FDE8F1&fg=9B4D6B",
+              alt:
+                "Donut sabor Bis branco ou preto, donut coberto com pedaços de chocolate Bis branco ou preto, foto realista de donut com chocolate escuro em moldura circular",
+              hasExtra: false,
+              extraText: "",
+              extraPrice: 0,
+            },
+          ],
+        },
+        {
+          id: "tradicionais",
+          label: "Tradicionais",
+          icon: "fa-donut",
+          discount: "🍩 Tradicionais – R$ 2,50",
+          discountColor: "text-yellow-500",
+          items: [
+            {
+              name: "Chocolate Blend",
+              description:
+                "Chocolate Branco\nCores disponíveis: vermelho, rosa, azul, amarelo e lilás",
+              price: 2.5,
+              priceText: "R$ 2,50",
+              img:
+                "https://placehold.co/120x120/png?text=Donut+Chocolate+Blend&font=Inter&font-size=18&bg=FFF4E5&fg=B27B3F",
+              alt:
+                "Donut Chocolate Blend com chocolate branco colorido em vermelho, rosa, azul, amarelo e lilás, donut redondo com cobertura colorida vibrante, foto realista em moldura circular",
+              hasExtra: true,
+              extraText: "Personalizados: acréscimo de R$0,50",
+              extraPrice: 0.5,
+            },
+          ],
+        },
+        {
+          id: "recheados",
+          label: "Recheados",
+          icon: "fa-box-open",
+          discount: "🍩 Recheados – R$ 3,50",
+          discountColor: "text-purple-600",
+          items: [
+            {
+              name: "Doce de leite",
+              description: "",
+              price: 3.5,
+              priceText: "R$ 3,50",
+              img:
+                "https://placehold.co/120x120/png?text=Donut+Doce+de+Leite&font=Inter&font-size=18&bg=F9E6D3&fg=9B6B3F",
+              alt:
+                "Donut recheado com doce de leite, donut redondo com recheio cremoso de doce de leite visível, foto realista em moldura circular",
+              hasExtra: false,
+              extraText: "",
+              extraPrice: 0,
+            },
+            {
+              name: "Nutella",
+              description: "(acréscimo de R$0,50 por unidade)",
+              price: 4.0,
+              priceText: "R$ 4,00",
+              img:
+                "https://placehold.co/120x120/png?text=Donut+Nutella&font=Inter&font-size=18&bg=F9E6D3&fg=6B4B3F",
+              alt:
+                "Donut recheado com Nutella, donut redondo com recheio cremoso de Nutella visível, foto realista em moldura circular",
+              hasExtra: true,
+              extraText: "Acréscimo de R$0,50 por unidade",
+              extraPrice: 0.5,
+            },
+          ],
+        },
+        {
+          id: "caixas",
+          label: "Caixas",
+          icon: "fa-box",
+          discount: "🍩 Caixas (Monte sua caixa) – A partir de R$ 15,00",
+          discountColor: "text-green-600",
+          items: [
+            {
+              name: "Espetinho com 3 unidades",
+              description: "Donuts tradicionais\nPersonalizados: acréscimo de R$0,50",
+              price: 8.0,
+              priceText: "R$ 8,00",
+              img:
+                "https://placehold.co/120x120/png?text=Espetinho+3+Donuts&font=Inter&font-size=18&bg=E5F7F9&fg=3F7B8B",
+              alt: "Espetinho com 3 unidades de donuts tradicionais, foto realista em moldura circular",
+              hasExtra: true,
+              extraText: "Personalizados: acréscimo de R$0,50",
+              extraPrice: 0.5,
+            },
+            {
+              name: "Copo com 4 unidades",
+              description: "Donuts tradicionais\nPersonalizados: acréscimo de R$0,50",
+              price: 10.0,
+              priceText: "R$ 10,00",
+              img:
+                "https://placehold.co/120x120/png?text=Copo+4+Donuts&font=Inter&font-size=18&bg=E5F7F9&fg=3F7B8B",
+              alt: "Copo com 4 unidades de donuts tradicionais, foto realista em moldura circular",
+              hasExtra: true,
+              extraText: "Personalizados: acréscimo de R$0,50",
+              extraPrice: 0.5,
+            },
+            {
+              name: "Monte sua Caixa",
+              description: "Contém 6 unidades\nValor total depende dos donuts escolhidos",
+              price: 15.0,
+              priceText: "A partir de R$ 15,00",
+              img:
+                "https://placehold.co/120x120/png?text=Caixa+6+Donuts&font=Inter&font-size=18&bg=E5F7F9&fg=3F7B8B",
+              alt: "Caixa com 6 unidades de donuts variados, foto realista em moldura circular",
+              hasExtra: false,
+              extraText: "",
+              extraPrice: 0,
+            },
+          ],
+        },
+        {
+          id: "centos",
+          label: "Centos",
+          icon: "fa-layer-group",
+          discount: "🍩 Centos",
+          discountColor: "text-pink-500",
+          items: [
+            {
+              name: "Cento Tradicional",
+              description: "Até 4 cores de cobertura",
+              price: 200.0,
+              priceText: "R$ 200,00",
+              img:
+                "https://placehold.co/120x120/png?text=Cento+Tradicional&font=Inter&font-size=18&bg=FDE8F1&fg=9B4D6B",
+              alt: "100 unidades de donuts tradicionais com até 4 cores, foto realista em moldura circular",
+              hasExtra: false,
+              extraText: "",
+              extraPrice: 0,
+            },
+            {
+              name: "Meio Cento Tradicional",
+              description: "Até 3 cores de cobertura",
+              price: 100.0,
+              priceText: "R$ 100,00",
+              img:
+                "https://placehold.co/120x120/png?text=Meio+Cento+Tradicional&font=Inter&font-size=18&bg=FDE8F1&fg=9B4D6B",
+              alt: "50 unidades de donuts tradicionais com até 3 cores, foto realista em moldura circular",
+              hasExtra: false,
+              extraText: "",
+              extraPrice: 0,
+            },
+            {
+              name: "Cento Recheado",
+              description: "Até 4 cores\nAcréscimo de R$0,50 por unidade com Nutella",
+              price: 300.0,
+              priceText: "R$ 300,00",
+              img:
+                "https://placehold.co/120x120/png?text=Cento+Recheado&font=Inter&font-size=18&bg=F9E6D3&fg=9B6B3F",
+              alt: "100 unidades de donuts recheados com até 4 cores, foto realista em moldura circular",
+              hasExtra: true,
+              extraText: "Acréscimo de R$0,50 por unidade com Nutella",
+              extraPrice: 0.5,
+            },
+            {
+              name: "Meio Cento Recheado",
+              description: "Até 3 cores\nAcréscimo de R$0,50 por unidade com Nutella",
+              price: 150.0,
+              priceText: "R$ 150,00",
+              img:
+                "https://placehold.co/120x120/png?text=Meio+Cento+Recheado&font=Inter&font-size=18&bg=F9E6D3&fg=9B6B3F",
+              alt: "50 unidades de donuts recheados com até 3 cores, foto realista em moldura circular",
+              hasExtra: true,
+              extraText: "Acréscimo de R$0,50 por unidade com Nutella",
+              extraPrice: 0.5,
+            },
+            {
+              name: "Nutella",
+              description: "+ R$ 0,50 por unidade",
+              price: 0.5,
+              priceText: "+ R$ 0,50 por unidade",
+              img:
+                "https://placehold.co/120x120/png?text=Adicional+Nutella&font=Inter&font-size=18&bg=F9E6D3&fg=6B4B3F",
+              alt: "Adicional Nutella por unidade, pote de Nutella cremoso com colher, foto realista em moldura circular",
+              hasExtra: false,
+              extraText: "",
+              extraPrice: 0,
+            },
+          ],
+        },
+      ];
+
+      const categoryButtons = document.querySelectorAll("#category-buttons button");
+      const discountIcon = document.getElementById("discount-icon");
+      const discountText = document.getElementById("discount-text");
+      const productList = document.getElementById("product-list");
+      const body = document.body;
+      const colorButtons = document.querySelectorAll("div.bg-white button[data-color]");
+      const searchInput = document.getElementById("header-search");
+      const searchSendBtn = document.getElementById("search-send-btn");
+      const cartButton = document.getElementById("cart-button");
+      const cartPanel = document.getElementById("cart-panel");
+      const cartList = document.getElementById("cart-list");
+      const cartTotal = document.getElementById("cart-total");
+      const cartBuyBtn = document.getElementById("cart-buy-btn");
+      const cartCountBadge = document.getElementById("cart-count-badge");
+      const promoTimerEl = document.createElement("span");
+      promoTimerEl.id = "promo-timer";
+      promoTimerEl.setAttribute("aria-live", "polite");
+      promoTimerEl.setAttribute("role", "timer");
+
+      let cart = [];
+      let promoTimer = 120; // 2 minutes in seconds
+      let promoActive = true;
+
+      function saveCart() {
+        localStorage.setItem("querenDonutsCart", JSON.stringify(cart));
+        updateCartCount();
+      }
+
+      function loadCart() {
+        const saved = localStorage.getItem("querenDonutsCart");
+        if (saved) {
+          try {
+            cart = JSON.parse(saved);
+          } catch {
+            cart = [];
+          }
+        }
+        updateCartCount();
+      }
+
+      function updateCartCount() {
+        const totalQty = cart.reduce((acc, cur) => acc + cur.quantity, 0);
+        if (totalQty > 0) {
+          cartCountBadge.textContent = totalQty;
+          cartCountBadge.classList.remove("hidden");
+        } else {
+          cartCountBadge.classList.add("hidden");
+        }
+      }
+
+      function formatTime(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+      }
+
+      function startPromoTimer() {
+        promoTimerEl.textContent = formatTime(promoTimer);
+        const interval = setInterval(() => {
+          promoTimer--;
+          if (promoTimer <= 0) {
+            clearInterval(interval);
+            promoActive = false;
+            promoTimerEl.textContent = "Promo encerrada";
+            // Update promo category prices and UI
+            if (currentCategory === "promo") {
+              renderCategory("promo");
+            }
+          } else {
+            promoTimerEl.textContent = formatTime(promoTimer);
+          }
+        }, 1000);
+      }
+
+      let currentCategory = "promo";
+
+      function renderCategory(categoryId) {
+        currentCategory = categoryId;
+        const category = categories.find((c) => c.id === categoryId);
+        if (!category) return;
+
+        // Show or hide timer only for promo category
+        const discountSection = document.getElementById("discount-text").parentElement;
+        if (categoryId === "promo") {
+          if (!promoTimerEl.parentElement) {
+            discountSection.appendChild(promoTimerEl);
+          }
+        } else {
+          if (promoTimerEl.parentElement) {
+            promoTimerEl.parentElement.removeChild(promoTimerEl);
+          }
+        }
+
+        // Update discount text and icon
+        if (categoryId === "promo" && !promoActive) {
+          discountText.textContent = "🍩 Promo – R$ 4,50";
+        } else {
+          discountText.textContent = category.discount;
+        }
+        discountIcon.className = `fas ${category.icon} ${category.discountColor} text-xl`;
+
+        productList.innerHTML = "";
+        category.items.forEach((item) => {
+          const card = document.createElement("article");
+          card.className =
+            "bg-white rounded-xl shadow p-4 flex items-center space-x-4 cursor-default";
+          card.setAttribute("role", "listitem");
+          card.tabIndex = 0;
+
+          // Image container with circular border
+          const imgContainer = document.createElement("div");
+          imgContainer.className = "w-28 h-28 rounded-full border-4 border-gray-200 overflow-hidden flex-shrink-0 flex items-center justify-center bg-white";
+
+          const img = document.createElement("img");
+          img.className = "object-cover w-full h-full";
+          img.src = item.img;
+          img.alt = item.alt;
+          img.width = 112;
+          img.height = 112;
+
+          imgContainer.appendChild(img);
+
+          // Text and button container
+          const textButtonDiv = document.createElement("div");
+          textButtonDiv.className = "flex flex-1 flex-col sm:flex-row sm:items-center sm:justify-between";
+
+          // Text container
+          const textDiv = document.createElement("div");
+          textDiv.className = "text-center sm:text-left";
+
+          const name = document.createElement("h3");
+          name.className = "text-gray-900 font-semibold text-lg";
+          name.textContent = item.name;
+
+          const desc = document.createElement("p");
+          desc.className = "text-gray-600 text-sm whitespace-pre-line mt-1";
+          desc.textContent = item.description;
+
+          const price = document.createElement("p");
+          price.className = "text-blue-600 font-semibold text-lg mt-1";
+
+          // Adjust price if promo expired
+          let displayPrice = item.price;
+          let displayPriceText = item.priceText;
+          if (categoryId === "promo" && !promoActive) {
+            displayPrice = 4.5;
+            displayPriceText = "R$ 4,50";
+          }
+          price.textContent = displayPriceText || "";
+
+          textDiv.appendChild(name);
+          if(item.description) textDiv.appendChild(desc);
+          textDiv.appendChild(price);
+
+          // Add button
+          const addButton = document.createElement("button");
+          addButton.type = "button";
+          addButton.className = "mt-3 sm:mt-0 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1";
+          addButton.textContent = "Adicionar";
+          addButton.setAttribute("aria-label", `Adicionar ${item.name} ao carrinho`);
+
+          addButton.addEventListener("click", () => {
+            showSplashAnimation(() => {
+              let itemToAdd = {...item};
+              if (categoryId === "promo" && !promoActive) {
+                itemToAdd.price = 4.5;
+                itemToAdd.priceText = "R$ 4,50";
+              }
+              if (itemToAdd.hasExtra && itemToAdd.extraPrice > 0) {
+                const wantsExtra = confirm(`Deseja adicionar o acréscimo de R$${itemToAdd.extraPrice.toFixed(2)} para "${itemToAdd.extraText}"?`);
+                if (wantsExtra) {
+                  itemToAdd.price += itemToAdd.extraPrice;
+                  itemToAdd.priceText = `R$ ${itemToAdd.price.toFixed(2)} (+${itemToAdd.extraText})`;
+                  addToCart(itemToAdd);
+                } else {
+                  addToCart(itemToAdd);
+                }
+              } else {
+                addToCart(itemToAdd);
+              }
+            });
+          });
+
+          textButtonDiv.appendChild(textDiv);
+          textButtonDiv.appendChild(addButton);
+
+          card.appendChild(imgContainer);
+          card.appendChild(textButtonDiv);
+
+          productList.appendChild(card);
+        });
+      }
+
+      function addToCart(item) {
+        const existing = cart.find(c => c.item.name === item.name && c.item.description === item.description && c.item.price === item.price);
+        if (existing) {
+          existing.quantity++;
+        } else {
+          cart.push({item: item, quantity: 1});
+        }
+        saveCart();
+        renderCart();
+      }
+
+      function removeFromCart(index) {
+        cart.splice(index, 1);
+        saveCart();
+        renderCart();
+      }
+
+      function changeQuantity(index, delta) {
+        const entry = cart[index];
+        if (!entry) return;
+        entry.quantity += delta;
+        if (entry.quantity < 1) {
+          removeFromCart(index);
+        } else {
+          saveCart();
+          renderCart();
+        }
+      }
+
+      function renderCart() {
+        cartList.innerHTML = "";
+        if (cart.length === 0) {
+          const emptyMsg = document.createElement("p");
+          emptyMsg.className = "text-white text-center py-6";
+          emptyMsg.textContent = "Seu carrinho está vazio.";
+          cartList.appendChild(emptyMsg);
+          cartTotal.textContent = "R$ 0,00";
+          cartBuyBtn.disabled = true;
+          cartBuyBtn.classList.add("opacity-50", "cursor-not-allowed");
+          updateCartCount();
+          return;
+        }
+
+        cart.forEach((entry, index) => {
+          const {item, quantity} = entry;
+
+          const li = document.createElement("li");
+          li.className = "flex items-center space-x-4 border-b border-white/30 py-3";
+
+          const img = document.createElement("img");
+          img.src = item.img;
+          img.alt = item.alt;
+          img.width = 60;
+          img.height = 60;
+          img.className = "w-16 h-16 rounded-lg object-cover flex-shrink-0";
+
+          const infoDiv = document.createElement("div");
+          infoDiv.className = "flex-1";
+
+          const name = document.createElement("h4");
+          name.className = "font-semibold text-white";
+          name.textContent = item.name;
+
+          const desc = document.createElement("p");
+          desc.className = "text-white text-sm whitespace-pre-line";
+          desc.textContent = item.description;
+
+          const price = document.createElement("p");
+          price.className = "text-blue-300 font-semibold mt-1";
+          const totalPrice = (item.price || 0) * quantity;
+          price.textContent = `R$ ${totalPrice.toFixed(2)}`;
+
+          infoDiv.appendChild(name);
+          if(item.description) infoDiv.appendChild(desc);
+          infoDiv.appendChild(price);
+
+          const qtyControls = document.createElement("div");
+          qtyControls.className = "flex items-center space-x-2";
+
+          const btnMinus = document.createElement("button");
+          btnMinus.type = "button";
+          btnMinus.className = "bg-white/20 hover:bg-white/30 rounded px-2 py-1 text-white focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-white";
+          btnMinus.setAttribute("aria-label", `Diminuir quantidade de ${item.name}`);
+          btnMinus.textContent = "-";
+          btnMinus.addEventListener("click", () => changeQuantity(index, -1));
+
+          const qtyText = document.createElement("span");
+          qtyText.className = "w-6 text-center font-semibold text-white";
+          qtyText.textContent = quantity;
+
+          const btnPlus = document.createElement("button");
+          btnPlus.type = "button";
+          btnPlus.className = "bg-white/20 hover:bg-white/30 rounded px-2 py-1 text-white focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-white";
+          btnPlus.setAttribute("aria-label", `Aumentar quantidade de ${item.name}`);
+          btnPlus.textContent = "+";
+          btnPlus.addEventListener("click", () => changeQuantity(index, 1));
+
+          const btnRemove = document.createElement("button");
+          btnRemove.type = "button";
+          btnRemove.className = "ml-4 text-red-300 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-400";
+          btnRemove.setAttribute("aria-label", `Remover ${item.name} do carrinho`);
+          btnRemove.innerHTML = '<i class="fas fa-trash-alt"></i>';
+          btnRemove.addEventListener("click", () => removeFromCart(index));
+
+          qtyControls.appendChild(btnMinus);
+          qtyControls.appendChild(qtyText);
+          qtyControls.appendChild(btnPlus);
+          qtyControls.appendChild(btnRemove);
+
+          li.appendChild(img);
+          li.appendChild(infoDiv);
+          li.appendChild(qtyControls);
+
+          cartList.appendChild(li);
+        });
+
+        const total = cart.reduce(
+          (acc, cur) => acc + (cur.item.price || 0) * cur.quantity,
+          0
+        );
+        cartTotal.textContent = `R$ ${total.toFixed(2)}`;
+        cartBuyBtn.disabled = false;
+        cartBuyBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        updateCartCount();
+      }
+
+      function toggleCart() {
+        if (cartPanel.classList.contains("translate-x-full")) {
+          cartPanel.classList.remove("translate-x-full");
+          cartPanel.classList.add("translate-x-0");
+          cartPanel.setAttribute("aria-hidden", "false");
+          cartPanel.focus();
+        } else {
+          cartPanel.classList.add("translate-x-full");
+          cartPanel.classList.remove("translate-x-0");
+          cartPanel.setAttribute("aria-hidden", "true");
+        }
+      }
+
+      function sendCartOrder() {
+        if (cart.length === 0) return;
+        let message = "Quero esse pedido:\n";
+        cart.forEach(({ item, quantity }) => {
+          const desc = item.description ? ` ${item.description}` : "";
+          const priceText = item.priceText ? ` - ${item.priceText}` : "";
+          message += `*${item.name}*${desc} x${quantity}${priceText}\n`;
+        });
+        const total = cart.reduce(
+          (acc, cur) => acc + (cur.item.price || 0) * cur.quantity,
+          0
+        );
+        message += `\nTotal: R$ ${total.toFixed(2)}`;
+        const encodedText = encodeURIComponent(message);
+        window.location.href = `https://wa.me/67991415471?text=${encodedText}`;
+      }
+
+      // Splash animation show/hide
+      const splashArt = document.createElement("div");
+      splashArt.id = "splash-art";
+      splashArt.setAttribute("aria-live", "polite");
+      splashArt.setAttribute("role", "alert");
+      splashArt.innerHTML = `
+        <img src="https://i.imgur.com/3vXq6qv.png" alt="Donut animado girando" />
+        <p>Adicionando ao carrinho...</p>
+      `;
+      document.body.appendChild(splashArt);
+
+      function showSplashAnimation(callback) {
+        splashArt.classList.add("show");
+        setTimeout(() => {
+          splashArt.classList.remove("show");
+          if (typeof callback === "function") callback();
+        }, 1500);
+      }
+
+      categoryButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          categoryButtons.forEach((b) => {
+            b.classList.remove("border-red-500", "text-red-600", "font-bold");
+            b.classList.add("text-gray-700", "font-semibold");
+            b.setAttribute("aria-selected", "false");
+          });
+          btn.classList.add("border-red-500", "text-red-600", "font-bold");
+          btn.classList.remove("text-gray-700", "font-semibold");
+          btn.setAttribute("aria-selected", "true");
+          renderCategory(btn.dataset.category);
+        });
+      });
+
+      renderCategory("promo");
+      startPromoTimer();
+
+      colorButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const color = btn.getAttribute("data-color");
+          // Adjust pink color to a more discreet tone
+          let adjustedColor = color;
+          if (color.toLowerCase() === "#ec4899") {
+            adjustedColor = "#d77a9b"; // softer, more muted pink
+          }
+          body.style.backgroundColor = adjustedColor;
+
+          colorButtons.forEach((b) => b.classList.remove("ring-2", "ring-offset-1"));
+          btn.classList.add("ring-2", "ring-offset-1");
+        });
+      });
+
+      const defaultBtn = document.querySelector("div.bg-white button[data-color='#0a7fff']");
+      if (defaultBtn) {
+        defaultBtn.classList.add("ring-2", "ring-offset-1");
+      }
+
+      function sendSearchText() {
+        const text = searchInput.value.trim();
+        if (text.length === 0) return;
+        const message = `Quero esse pedido: ${text}`;
+        const encodedText = encodeURIComponent(message);
+        window.location.href = `https://wa.me/67991415471?text=${encodedText}`;
+      }
+
+      searchSendBtn.addEventListener("click", sendSearchText);
+      searchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          sendSearchText();
+        }
+      });
+
+      cartButton.addEventListener("click", toggleCart);
+      cartBuyBtn.addEventListener("click", sendCartOrder);
+
+      document.getElementById("cart-close-btn").addEventListener("click", () => {
+        const cartPanel = document.getElementById("cart-panel");
+        cartPanel.classList.add("translate-x-full");
+        cartPanel.classList.remove("translate-x-0");
+        cartPanel.setAttribute("aria-hidden", "true");
+        document.getElementById("cart-button").focus();
+      });
+
+      cartPanel.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          toggleCart();
+          cartButton.focus();
+        }
+      });
+    });
+  </script>
+ </head>
+ <body class="bg-[#f4c7d7] min-h-screen flex flex-col transition-colors duration-300 relative">
+  <header class="relative rounded-b-[40px] px-4 pt-6 pb-4 shadow-lg z-20 overflow-hidden" style="background-color: #9e5a68;">
+   <div aria-hidden="true" id="header-bg-images">
+    <img alt="Donut rosa translúcido decorativo flutuando, imagem circular com borda branca translúcida" height="80" src="https://storage.googleapis.com/a1aa/image/e91c8597-f0e0-47c2-e274-dfa6031a749c.jpg" style="top: 10%; left: 5%; width: 80px; height: 80px" width="80"/>
+    <img alt="Donut branco translúcido decorativo flutuando, imagem circular com borda branca translúcida" height="100" src="https://storage.googleapis.com/a1aa/image/312cd003-7370-4dd4-b9af-4c03287b1528.jpg" style="top: 40%; left: 20%; width: 100px; height: 100px" width="100"/>
+    <img alt="Donut rosa translúcido decorativo flutuando, imagem circular com borda branca translúcida" height="90" src="https://storage.googleapis.com/a1aa/image/e91c8597-f0e0-47c2-e274-dfa6031a749c.jpg" style="top: 15%; right: 10%; width: 90px; height: 90px" width="90"/>
+    <img alt="Donut branco translúcido decorativo flutuando, imagem circular com borda branca translúcida" height="80" src="https://storage.googleapis.com/a1aa/image/312cd003-7370-4dd4-b9af-4c03287b1528.jpg" style="top: 60%; right: 5%; width: 80px; height: 80px" width="80"/>
+    <img alt="Donut rosa translúcido decorativo flutuando, imagem circular com borda branca translúcida" height="70" src="https://storage.googleapis.com/a1aa/image/e91c8597-f0e0-47c2-e274-dfa6031a749c.jpg" style="top: 75%; left: 10%; width: 70px; height: 70px" width="70"/>
+   </div>
+   <form class="relative flex items-center bg-white rounded-full px-3 py-2 text-gray-400 text-sm font-normal z-10" onsubmit="return false">
+    <input aria-label="Campo de busca" class="w-full outline-none text-gray-400 placeholder-gray-400 text-sm font-normal bg-transparent pr-10" id="header-search" placeholder="O que você quer comer hoje?" type="search"/>
+    <button aria-label="Enviar busca" class="absolute right-2 text-gray-400 hover:text-red-600 focus:outline-none focus:text-red-600" id="search-send-btn" tabindex="0" type="button">
+     <i class="fas fa-paper-plane"></i>
+    </button>
+   </form>
+   <div class="flex items-center mt-4 rounded-[30px] px-4 py-2 text-white font-semibold text-lg z-10 relative header-title-cart">
+    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-400 mr-3">
+     <i class="fas fa-utensils text-black text-lg"></i>
+    </div>
+    <span class="truncate flex-1">Queren Donuts</span>
+    <button aria-label="Abrir carrinho" class="relative text-white focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500" id="cart-button" title="Abrir carrinho" type="button">
+     <i class="fas fa-shopping-cart text-xl"></i>
+     <span class="hidden absolute -top-1 -right-3 bg-yellow-400 text-black rounded-full text-xs font-bold w-5 h-5 flex items-center justify-center" id="cart-count-badge">0</span>
+    </button>
+   </div>
+   <p class="text-white text-xs mt-1 ml-14 flex items-center gap-1 z-10 relative">
+    <i class="fas fa-coins"></i>
+    Pedido mínimo: R$ 7,00
+   </p>
+  </header>
+  <div class="bg-white mx-4 mt-4 rounded-xl shadow p-2 flex items-center space-x-2 justify-center z-10 relative bg-color-selector">
+   <label class="sr-only" for="bg-color-selector">Cor do plano de fundo</label>
+   <button aria-label="Azul" class="w-6 h-6 rounded-full bg-[#0a7fff] border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-[#0a7fff]" data-color="#0a7fff" type="button"></button>
+   <button aria-label="Verde" class="w-6 h-6 rounded-full bg-green-500 border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-green-500" data-color="#22c55e" type="button"></button>
+   <button aria-label="Rosa" class="w-6 h-6 rounded-full bg-pink-500 border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-pink-500" data-color="#ec4899" type="button"></button>
+   <button aria-label="Amarelo" class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-yellow-400" data-color="#facc15" type="button"></button>
+   <button aria-label="Cinza" class="w-6 h-6 rounded-full bg-gray-400 border-2 border-white shadow-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-400" data-color="#9ca3af" type="button"></button>
+  </div>
+  <nav class="bg-white mt-4 mx-4 rounded-xl shadow flex justify-between text-sm font-semibold text-gray-700 px-4 overflow-x-auto z-10 relative" id="category-buttons" role="tablist">
+   <button aria-selected="true" class="flex items-center space-x-1 border-b-2 border-red-500 text-red-600 font-bold pb-2 whitespace-nowrap" data-category="promo" role="tab" type="button">Promo</button>
+   <button class="pb-2 hover:text-red-600 transition font-semibold text-gray-700 whitespace-nowrap" data-category="tradicionais" role="tab" type="button">Tradicionais</button>
+   <button class="pb-2 hover:text-red-600 transition font-semibold text-gray-700 whitespace-nowrap" data-category="recheados" role="tab" type="button">Recheados</button>
+   <button class="pb-2 hover:text-red-600 transition font-semibold text-gray-700 whitespace-nowrap" data-category="caixas" role="tab" type="button">Caixas</button>
+   <button class="pb-2 hover:text-red-600 transition font-semibold text-gray-700 whitespace-nowrap" data-category="centos" role="tab" type="button">Centos</button>
+  </nav>
+  <section aria-live="polite" class="bg-white mt-4 mx-4 rounded-xl shadow flex items-center px-4 py-3 space-x-3 z-10 relative">
+   <i class="fas fa-star text-red-500 text-xl" id="discount-icon"></i>
+   <h2 class="text-red-500 font-bold text-lg" id="discount-text">🍩 Promo – R$ 3,00</h2>
+  </section>
+  <main class="flex-1 overflow-y-auto mt-4 mx-4 space-y-4 pb-24 relative z-10" id="product-list" role="list"></main>
+  <aside aria-hidden="true" aria-label="Carrinho de compras" class="fixed top-0 right-0 h-full w-80 max-w-full shadow-xl transform translate-x-full transition-transform duration-300 flex flex-col z-40" id="cart-panel" tabindex="-1" style="background-color: #0a7fff;">
+   <header class="flex items-center justify-between p-4 border-b border-white/30">
+    <h3 class="text-lg font-semibold text-white">Carrinho</h3>
+    <button aria-label="Fechar carrinho" class="text-white hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-300" id="cart-close-btn" type="button">
+     <i class="fas fa-times text-xl"></i>
+    </button>
+   </header>
+   <ul class="flex-1 overflow-y-auto divide-y divide-white/30 p-4" id="cart-list" tabindex="0"></ul>
+   <footer class="p-4 border-t border-white/30">
+    <div class="flex justify-between items-center mb-4">
+     <span class="font-semibold text-white text-lg">Total:</span>
+     <span class="font-bold text-white text-lg" id="cart-total">R$ 0,00</span>
+    </div>
+    <button class="w-full bg-white text-blue-700 font-semibold py-3 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled="" id="cart-buy-btn" type="button">Finalizar Compra</button>
+   </footer>
+  </aside>
+ </body>
+</html>
